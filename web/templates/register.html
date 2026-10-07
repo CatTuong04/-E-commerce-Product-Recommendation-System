@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% block title %}Register - Luxury Beauty{% endblock %}
+
+{% block content %}
+<style>
+:root {
+  --pink: #ffe5ec;
+  --pink-strong: #f8cfdc;
+  --pink-deep: #c97f97;
+  --pink-text: #8f5b6e;
+  --surface: #ffffff;
+  --ink: #5f4350;
+  --muted: #9c7d89;
+  --line: rgba(201, 127, 151, 0.18);
+  --shadow-lg: 0 28px 70px rgba(201, 127, 151, 0.18);
+  --shadow-md: 0 16px 34px rgba(201, 127, 151, 0.12);
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(255, 229, 236, 0.95), transparent 34%),
+    radial-gradient(circle at top right, rgba(248, 207, 220, 0.55), transparent 24%),
+    linear-gradient(180deg, #ffffff 0%, #fff8fb 52%, #ffffff 100%) !important;
+  color: var(--ink);
+}
+
+header,
+footer {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: var(--pink-text) !important;
+  border-color: var(--pink-strong) !important;
+}
+
+.logo h1 {
+  color: var(--pink-deep) !important;
+}
+
+.nav-link {
+  color: var(--pink-text) !important;
+}
+
+.nav-link:hover {
+  color: var(--pink-deep) !important;
+  background: rgba(255, 229, 236, 0.65) !important;
+}
+
+.nav-register {
+  background: var(--pink) !important;
+  color: var(--pink-text) !important;
+}
+
+.nav-register:hover {
+  background: var(--pink-strong) !important;
+  color: var(--pink-text) !important;
+}
+
+main.container.main-content {
+  max-width: 1240px;
+  width: 100%;
+  padding-top: 28px;
+  padding-bottom: 72px;
+}
+
+.register-shell {
+  display: grid;
+}
+
+.register-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 32px;
+  padding: 40px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.95), transparent 0 24%),
+    radial-gradient(circle at 86% 22%, rgba(248, 207, 220, 0.35), transparent 0 20%),
+    linear-gradient(135deg, #fffafb 0%, #ffeef4 45%, #ffe5ec 100%);
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  box-shadow: var(--shadow-lg);
+}
+
+.register-panel::before,
+.register-panel::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 127, 151, 0.2);
+}
+
+.register-panel::before {
+  width: 260px;
+  height: 260px;
+  right: -88px;
+  top: -72px;
+}
+
+.register-panel::after {
+  width: 220px;
+  height: 220px;
+  left: -74px;
+  bottom: -110px;
+}
+
+.register-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+.register-copy {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  padding: 18px 6px 18px 2px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--pink-deep);
+}
+
+.register-copy h1 {
+  margin: 0;
+  max-width: 10ch;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.7rem, 5.6vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+.register-copy p {
+  max-width: 56ch;
+  margin: 0;
+  color: var(--pink-text);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.register-card {
+  padding: 28px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  box-shadow: var(--shadow-md);
+}
+
+.register-card h2 {
+  margin: 0 0 8px;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.1rem;
+}
+
+.register-card > p {
+  margin: 0 0 24px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.register-form {
+  display: grid;
+  gap: 18px;
+}
+
+.form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.form-group label {
+  color: var(--pink-text);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.label-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
+.form-group input {
+  width: 100%;
+  min-height: 58px;
+  padding: 0 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: #aa8e99;
+}
+
+.form-group input:focus {
+  border-color: rgba(201, 127, 151, 0.5);
+  box-shadow: 0 0 0 4px rgba(255, 229, 236, 0.85);
+}
+
+.register-submit {
+  min-height: 58px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--pink-deep);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.register-submit:hover {
+  transform: translateY(-2px);
+  background: #b96f88;
+}
+
+.auth-link {
+  margin: 18px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.auth-link a {
+  color: var(--pink-deep);
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .register-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .register-copy h1 {
+    max-width: 12ch;
+  }
+}
+
+@media (max-width: 760px) {
+  main.container.main-content {
+    padding-top: 20px;
+    padding-bottom: 56px;
+  }
+
+  .register-panel {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .register-card {
+    padding: 22px;
+    border-radius: 22px;
+  }
+}
+</style>
+
+<div class="register-shell">
+  <section class="register-panel">
+    <div class="register-grid">
+      <div class="register-copy">
+        <p class="eyebrow">Create Your Account</p>
+        <h1>Join the Luxury Beauty experience.</h1>
+        <p>
+          Create your account to explore curated beauty picks, keep your browsing experience personalized,
+          and connect your profile with recommendation-ready data.
+        </p>
+      </div>
+
+      <div class="register-card">
+        <h2>Register</h2>
+        <p>Set up your account in a few quick steps.</p>
+
+        <form method="POST" action="/register" class="register-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required autofocus placeholder="Choose a username">
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Create a password">
+          </div>
+
+          <div class="form-group">
+            <label for="reviewer_id">Reviewer ID <span class="label-hint">(optional)</span></label>
+            <input type="text" id="reviewer_id" name="reviewer_id" placeholder="Example: A2HOI48JK8838M">
+          </div>
+
+          <button type="submit" class="register-submit">Create Account</button>
+        </form>
+
+        <p class="auth-link">Already have an account? <a href="/login">Sign in here</a></p>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

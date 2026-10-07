@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found - Luxury Beauty{% endblock %}
+
+{% block head_styles %}
+<style>
+.error-shell {
+  min-height: calc(100vh - 240px);
+  display: grid;
+  place-items: center;
+}
+
+.error-panel {
+  position: relative;
+  overflow: hidden;
+  width: min(920px, 100%);
+  border-radius: 34px;
+  padding: 42px;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.96), transparent 0 24%),
+    radial-gradient(circle at 82% 18%, rgba(248, 207, 220, 0.36), transparent 0 20%),
+    linear-gradient(135deg, #fffafb 0%, #ffeef4 48%, #ffe5ec 100%);
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  box-shadow: 0 28px 70px rgba(201, 127, 151, 0.18);
+}
+
+.error-panel::before,
+.error-panel::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 127, 151, 0.2);
+}
+
+.error-panel::before {
+  width: 280px;
+  height: 280px;
+  right: -92px;
+  top: -90px;
+}
+
+.error-panel::after {
+  width: 240px;
+  height: 240px;
+  left: -80px;
+  bottom: -120px;
+}
+
+.error-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.95fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.error-copy {
+  display: grid;
+  gap: 18px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #c97f97;
+}
+
+.error-code {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(4.8rem, 12vw, 8rem);
+  line-height: 0.9;
+  color: #8f5b6e;
+}
+
+.error-copy h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1;
+  color: #5f4350;
+}
+
+.error-copy p {
+  margin: 0;
+  max-width: 52ch;
+  color: #8f5b6e;
+  line-height: 1.8;
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.error-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.btn-primary {
+  background: #c97f97;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  border: 1px solid rgba(201, 127, 151, 0.18);
+  background: rgba(255, 255, 255, 0.84);
+  color: #c97f97;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: translateY(-2px);
+}
+
+.error-aside {
+  display: grid;
+  gap: 14px;
+}
+
+.error-card {
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(201, 127, 151, 0.14);
+}
+
+.error-card strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #c97f97;
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.error-card span {
+  display: block;
+  color: #8f5b6e;
+  line-height: 1.7;
+}
+
+@media (max-width: 860px) {
+  .error-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .error-shell {
+    min-height: auto;
+  }
+
+  .error-panel,
+  .error-card {
+    border-radius: 24px;
+  }
+
+  .error-panel {
+    padding: 24px;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-shell">
+    <section class="error-panel">
+        <div class="error-grid">
+            <div class="error-copy">
+                <p class="eyebrow">Error 404</p>
+                <h1 class="error-code">404</h1>
+                <h2>Page not found.</h2>
+                <p>The page you are looking for may have moved, been removed, or never existed in this route.</p>
+                <div class="error-actions">
+                    <a href="/" class="btn-primary">Back to Home</a>
+                    <a href="/profile" class="btn-secondary">Open Profile</a>
+                </div>
+            </div>
+
+            <aside class="error-aside">
+                <div class="error-card">
+                    <strong>Quick Tip</strong>
+                    <span>Use the navigation above to jump back into search, recommendations, or your profile.</span>
+                </div>
+                <div class="error-card">
+                    <strong>Design Update</strong>
+                    <span>This screen now matches the refreshed visual style used across the rest of the site.</span>
+                </div>
+            </aside>
+        </div>
+    </section>
+</div>
+{% endblock %}

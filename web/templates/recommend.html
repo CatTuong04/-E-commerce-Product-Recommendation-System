@@ -1,0 +1,851 @@
+{% extends "base.html" %}
+{% block title %}Recommendation Demo - Luxury Beauty{% endblock %}
+
+{% block head_styles %}
+<style>
+.recommend-page {
+  display: grid;
+  gap: 28px;
+}
+
+.hero-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 32px;
+  padding: 38px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.95), transparent 0 24%),
+    radial-gradient(circle at 86% 22%, rgba(248, 207, 220, 0.35), transparent 0 20%),
+    linear-gradient(135deg, #fffafb 0%, #ffeef4 45%, #ffe5ec 100%);
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  box-shadow: 0 28px 70px rgba(201, 127, 151, 0.18);
+}
+
+.hero-panel::before,
+.hero-panel::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 127, 151, 0.2);
+}
+
+.hero-panel::before {
+  width: 280px;
+  height: 280px;
+  right: -90px;
+  top: -78px;
+}
+
+.hero-panel::after {
+  width: 220px;
+  height: 220px;
+  left: -78px;
+  bottom: -112px;
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #c97f97;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  max-width: 12ch;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.7rem, 5.6vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: #5f4350;
+}
+
+.hero-copy p {
+  margin: 0;
+  max-width: 58ch;
+  color: #8f5b6e;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.stat-card,
+.demo-side-card,
+.control-panel,
+.result-panel,
+.empty-state,
+.product-card {
+  border-radius: 26px;
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 16px 34px rgba(201, 127, 151, 0.12);
+}
+
+.stat-card {
+  padding: 18px;
+  background: rgba(255, 247, 250, 0.96);
+}
+
+.stat-card strong {
+  display: block;
+  color: #c97f97;
+  font-size: 1.25rem;
+}
+
+.stat-card span {
+  display: block;
+  margin-top: 4px;
+  color: #8f5b6e;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.demo-side-card {
+  padding: 26px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.demo-side-card h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  color: #5f4350;
+}
+
+.demo-side-card p {
+  margin: 0;
+  color: #8f5b6e;
+  line-height: 1.75;
+}
+
+.control-panel,
+.result-panel,
+.empty-state {
+  padding: 28px;
+}
+
+.control-head,
+.panel-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.control-head h2,
+.panel-head h2,
+.empty-state h2 {
+  margin: 6px 0 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  color: #5f4350;
+}
+
+.control-panel p,
+.panel-note,
+.empty-state p {
+  margin: 0;
+  color: #8f5b6e;
+  line-height: 1.75;
+}
+
+.recommend-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 0 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(201, 127, 151, 0.16);
+  background: #ffffff;
+}
+
+.search-icon {
+  color: #c97f97;
+  font-size: 1rem;
+}
+
+.search-wrap input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #5f4350;
+  font: inherit;
+  font-size: 0.98rem;
+}
+
+.search-wrap input::placeholder {
+  color: #aa8e99;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 22px;
+  border-radius: 18px;
+  border: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.btn-primary {
+  background: #c97f97;
+  color: #ffffff;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.88);
+  color: #c97f97;
+  border: 1px solid rgba(201, 127, 151, 0.18);
+}
+
+.loading {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #8f5b6e;
+  font-weight: 600;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(201, 127, 151, 0.18);
+  border-top-color: #c97f97;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.result-panel {
+  display: grid;
+  gap: 22px;
+}
+
+.carousel-shell {
+  position: relative;
+  padding: 0 28px;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 230px);
+  gap: 26px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding: 4px 0 10px;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-track .product-card {
+  width: 230px;
+  min-width: 230px;
+  max-width: 230px;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 44%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.96);
+  color: #c97f97;
+  font-size: 1.8rem;
+  line-height: 1;
+  box-shadow: 0 12px 28px rgba(201, 127, 151, 0.16);
+  cursor: pointer;
+  z-index: 2;
+  border: 1px solid rgba(201, 127, 151, 0.16);
+}
+
+.carousel-prev {
+  left: 0;
+}
+
+.carousel-next {
+  right: 0;
+}
+
+.panel-badge,
+.badge-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.panel-badge {
+  background: #ffe5ec;
+  color: #c97f97;
+}
+
+.badge-info {
+  background: #fff7fa;
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  color: #8f5b6e;
+}
+
+.product-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  background: #ffffff;
+  border: 2px solid rgba(201, 127, 151, 0.46);
+  box-shadow: 0 0 0 4px rgba(201, 127, 151, 0.13), 0 12px 26px rgba(201, 127, 151, 0.09);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 127, 151, 0.62);
+  box-shadow: 0 0 0 5px rgba(201, 127, 151, 0.16), 0 22px 44px rgba(32, 24, 16, 0.12);
+}
+
+.product-card.hit-in-rec {
+  border-color: rgba(201, 127, 151, 0.52);
+  box-shadow: 0 0 0 4px rgba(201, 127, 151, 0.14), 0 22px 44px rgba(32, 24, 16, 0.1);
+}
+
+.product-card.hit {
+  border-color: rgba(201, 127, 151, 0.52);
+  background: linear-gradient(180deg, rgba(255, 247, 250, 0.98), rgba(255, 255, 255, 0.96));
+}
+
+.product-card.miss {
+  border-color: rgba(214, 120, 145, 0.3);
+  background: linear-gradient(180deg, rgba(255, 247, 249, 0.98), rgba(255, 255, 255, 0.96));
+}
+
+.product-media {
+  position: relative;
+  aspect-ratio: 1 / 0.82;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 229, 236, 0.55)),
+    #fff7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+  display: block;
+}
+
+.product-media img.placeholder {
+  width: 62%;
+  height: 62%;
+  padding: 0;
+  opacity: 0.42;
+}
+
+.product-body {
+  display: grid;
+  gap: 9px;
+  padding: 14px 15px 16px;
+}
+
+.product-title {
+  margin: 0;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #5f4350;
+  min-height: 2.8em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  color: #9c7d89;
+  font-size: 0.82rem;
+}
+
+.rating {
+  color: #d77f9e;
+  white-space: nowrap;
+}
+
+.score {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #fff7fa;
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  color: #6f5962;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.price {
+  color: #c97f97;
+  font-weight: 700;
+}
+
+.price {
+  font-size: 1rem;
+}
+
+.card-badge,
+.state-badge {
+  position: absolute;
+  top: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.card-badge {
+  left: 12px;
+  color: #c97f97;
+}
+
+.state-badge {
+  right: 12px;
+}
+
+.state-hit {
+  color: #3e9960;
+}
+
+.state-miss {
+  color: #c96886;
+}
+
+@media (max-width: 980px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .carousel-btn {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-panel,
+  .stat-card,
+  .demo-side-card,
+  .control-panel,
+  .result-panel,
+  .empty-state,
+  .product-card {
+    border-radius: 24px;
+  }
+
+  .hero-panel,
+  .control-panel,
+  .result-panel,
+  .empty-state {
+    padding: 22px;
+  }
+
+  .recommend-form {
+    grid-template-columns: 1fr;
+  }
+
+  .carousel-track {
+    grid-auto-columns: minmax(210px, 72vw);
+  }
+
+  .carousel-shell {
+    padding: 0;
+  }
+
+  .carousel-track .product-card {
+    width: 72vw;
+    min-width: 210px;
+    max-width: 72vw;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="recommend-page">
+    <section class="hero-panel">
+        <div class="hero-grid">
+            <div class="hero-copy">
+                <p class="eyebrow">Recommendation Demo</p>
+                <h1>See the ranking pipeline at work.</h1>
+                <p>
+                    Enter any user ID to inspect the two-stage recommendation flow, compare predicted items
+                    against ground truth, and review a user's recent purchase history in one place.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <strong>2-Stage</strong>
+                        <span>Retrieval first, ranking second, all displayed in a single demo view.</span>
+                    </div>
+                    <div class="stat-card">
+                        <strong>Top 10</strong>
+                        <span>Recommended items are shown with ranking position and model score.</span>
+                    </div>
+                    <div class="stat-card">
+                        <strong>HIT / MISS</strong>
+                        <span>Ground truth results help you validate recommendation quality at a glance.</span>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="demo-side-card">
+                <p class="eyebrow">How To Use</p>
+                <h2>Start with a user ID.</h2>
+                <p>Use a known reviewer ID, or generate a random user to test the full recommendation pipeline without leaving the page.</p>
+            </aside>
+        </div>
+    </section>
+
+    <section class="control-panel">
+        <div class="control-head">
+            <div>
+                <p class="eyebrow">Run Demo</p>
+                <h2>Find Recommendations</h2>
+            </div>
+        </div>
+        <p>Enter any User ID to see the 2-stage recommendation pipeline in action.</p>
+
+        <div class="recommend-form">
+            <label class="search-wrap" for="user-id-input">
+                <span class="search-icon">&#8981;</span>
+                <input type="text" id="user-id-input" placeholder="Enter User ID (e.g. A2HOI48JK8838M)">
+            </label>
+            <button id="btn-recommend" class="btn-primary" onclick="getRecommendations()">Recommend</button>
+        </div>
+
+        <div class="action-row">
+            <button id="btn-random" class="btn-secondary" onclick="randomUser()">Random User</button>
+        </div>
+
+        <div id="error-msg" class="flash flash-error" style="display:none"></div>
+        <div id="loading" class="loading" style="display:none"><div class="spinner"></div> Loading recommendations...</div>
+    </section>
+
+    <section id="history-section" class="result-panel" style="display:none">
+        <div class="panel-head">
+            <div>
+                <h2>Purchase History</h2>
+            </div>
+            <span class="panel-badge">Last 5</span>
+        </div>
+        <div class="carousel-shell">
+            <button class="carousel-btn carousel-prev" data-target="history-grid" aria-label="Scroll left">&lsaquo;</button>
+            <div id="history-grid" class="carousel-track"></div>
+            <button class="carousel-btn carousel-next" data-target="history-grid" aria-label="Scroll right">&rsaquo;</button>
+        </div>
+    </section>
+    <section id="baseline-system" class="result-panel" style="display:none">
+        <div class="panel-head">
+            <div>
+                <h2>Baseline (retrieval + ranking)</h2>
+                <p class="panel-note">Hybrid retrieval (CF + content + popularity) + LightGBM ranking without semantic features.</p>
+            </div>
+            <span id="baseline-hits" class="panel-badge">&mdash;</span>
+        </div>
+        <div class="carousel-shell">
+            <button class="carousel-btn carousel-prev" data-target="baseline-grid" aria-label="Scroll left">&lsaquo;</button>
+            <div id="baseline-grid" class="carousel-track"></div>
+            <button class="carousel-btn carousel-next" data-target="baseline-grid" aria-label="Scroll right">&rsaquo;</button>
+        </div>
+    </section>
+
+    <section id="huim-baseline" class="result-panel" style="display:none">
+        <div class="panel-head">
+            <div>
+                <h2>Baseline + HUIM (retrieval)</h2>
+                <p class="panel-note">HUIM-based retrieval candidates re-ranked by the baseline LightGBM (no semantic features).</p>
+            </div>
+            <span id="huim-hits" class="panel-badge">&mdash;</span>
+        </div>
+        <div class="carousel-shell">
+            <button class="carousel-btn carousel-prev" data-target="huim-grid" aria-label="Scroll left">&lsaquo;</button>
+            <div id="huim-grid" class="carousel-track"></div>
+            <button class="carousel-btn carousel-next" data-target="huim-grid" aria-label="Scroll right">&rsaquo;</button>
+        </div>
+    </section>
+
+    <section id="huim-ranking" class="result-panel" style="display:none">
+        <div class="panel-head">
+            <div>
+                <h2>Baseline + HUIM (retrieval) + Semantic (ranking)</h2>
+                <p class="panel-note">Full pipeline: HUIM retrieval + LightGBM with sentence-transformer semantic features.</p>
+            </div>
+            <span id="huim-sem-hits" class="panel-badge">&mdash;</span>
+        </div>
+        <div class="carousel-shell">
+            <button class="carousel-btn carousel-prev" data-target="huim-sem-grid" aria-label="Scroll left">&lsaquo;</button>
+            <div id="huim-sem-grid" class="carousel-track"></div>
+            <button class="carousel-btn carousel-next" data-target="huim-sem-grid" aria-label="Scroll right">&rsaquo;</button>
+        </div>
+    </section>
+
+    <section id="gt-section" class="result-panel" style="display:none">
+        <div class="panel-head">
+            <div>
+                <h2>Ground Truth</h2>
+            </div>
+            <span class="badge-info">Items user actually purchased next</span>
+        </div>
+        <div class="carousel-shell">
+            <button class="carousel-btn carousel-prev" data-target="gt-grid" aria-label="Scroll left">&lsaquo;</button>
+            <div id="gt-grid" class="carousel-track"></div>
+            <button class="carousel-btn carousel-next" data-target="gt-grid" aria-label="Scroll right">&rsaquo;</button>
+        </div>
+    </section>
+
+    <section id="empty-state" class="empty-state">
+        <p class="eyebrow">Demo Ready</p>
+        <h2>Run a user to populate the pipeline.</h2>
+        <p>Once you submit a user ID, purchase history, recommendations, and ground truth panels will appear below.</p>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const userInput = document.getElementById('user-id-input');
+const emptyState = document.getElementById('empty-state');
+const resultSectionIds = [
+    'history-section',
+    'baseline-system',
+    'huim-baseline',
+    'huim-ranking',
+    'gt-section'
+];
+
+const SYSTEM_TARGETS = {
+    baseline: { gridId: 'baseline-grid', sectionId: 'baseline-system', hitsId: 'baseline-hits' },
+    huim:     { gridId: 'huim-grid',     sectionId: 'huim-baseline',  hitsId: 'huim-hits' },
+    huim_sem: { gridId: 'huim-sem-grid', sectionId: 'huim-ranking',   hitsId: 'huim-sem-hits' }
+};
+
+userInput.addEventListener('keydown', e => { if (e.key === 'Enter') getRecommendations(); });
+
+document.querySelectorAll('.carousel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const track = document.getElementById(btn.dataset.target);
+        const card = track && track.querySelector('.product-card');
+        if (!track || !card) return;
+        const scrollAmount = card.offsetWidth + 18;
+        track.scrollBy({
+            left: btn.classList.contains('carousel-next') ? scrollAmount * 2 : -scrollAmount * 2,
+            behavior: 'smooth'
+        });
+    });
+});
+
+async function getRecommendations() {
+    const userId = userInput.value.trim();
+    if (!userId) return;
+
+    document.getElementById('loading').style.display = 'inline-flex';
+    document.getElementById('error-msg').style.display = 'none';
+    emptyState.style.display = 'none';
+    resultSectionIds.forEach(id =>
+        document.getElementById(id).style.display = 'none');
+
+    try {
+        const res = await fetch(`/api/recommend_compare?user_id=${encodeURIComponent(userId)}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+            document.getElementById('error-msg').textContent = data.error;
+            document.getElementById('error-msg').style.display = 'block';
+            emptyState.style.display = 'grid';
+            return;
+        }
+
+        renderProducts('history-grid', data.purchase_history, 'history');
+        document.getElementById('history-section').style.display = 'grid';
+
+        (data.systems || []).forEach(sys => {
+            const target = SYSTEM_TARGETS[sys.key];
+            if (!target) return;
+            renderProducts(target.gridId, sys.items, 'recommendation');
+            document.getElementById(target.sectionId).style.display = 'grid';
+            const hitsEl = document.getElementById(target.hitsId);
+            if (hitsEl) hitsEl.textContent = `${sys.hit_count}/${sys.gt_count} hits`;
+        });
+
+        renderProducts('gt-grid', data.ground_truth, 'ground_truth');
+        document.getElementById('gt-section').style.display = 'grid';
+    } catch (err) {
+        document.getElementById('error-msg').textContent = 'Network error: ' + err.message;
+        document.getElementById('error-msg').style.display = 'block';
+        emptyState.style.display = 'grid';
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+
+async function randomUser() {
+    try {
+        const res = await fetch('/api/users/random_compare');
+        const data = await res.json();
+        if (!res.ok) {
+            document.getElementById('error-msg').textContent = data.error || 'Failed to get random user';
+            document.getElementById('error-msg').style.display = 'block';
+            return;
+        }
+        userInput.value = data.user_id;
+        getRecommendations();
+    } catch (err) {
+        document.getElementById('error-msg').textContent = 'Failed to get random user';
+        document.getElementById('error-msg').style.display = 'block';
+    }
+}
+
+function renderProducts(containerId, items, type) {
+    const grid = document.getElementById(containerId);
+    grid.innerHTML = '';
+
+    items.forEach(item => {
+        const card = document.createElement('a');
+        card.href = '/product/' + item.item_id;
+        card.className = 'product-card';
+        card.dataset.itemId = item.item_id;
+
+        if (type === 'ground_truth') card.classList.add(item.is_hit ? 'hit' : 'miss');
+        if (type === 'recommendation' && item.is_hit) card.classList.add('hit-in-rec');
+
+        const imgHtml = item.image
+            ? `<img src="${item.image}" alt="" onerror="this.src='/static/placeholder.svg'; this.classList.add('placeholder')">`
+            : `<img src="/static/placeholder.svg" class="placeholder" alt="Placeholder image">`;
+
+        let badgeHtml = '';
+        if (type === 'recommendation') {
+            badgeHtml = `<span class="card-badge">#${item.rank}</span>`;
+        } else if (type === 'ground_truth') {
+            badgeHtml = `<span class="state-badge ${item.is_hit ? 'state-hit' : 'state-miss'}">${item.is_hit ? 'HIT' : 'MISS'}</span>`;
+        }
+
+        let metaParts = [];
+
+        if (type === 'history' && item.rating) {
+            metaParts.push(`<span class="rating">${'&#9733;'.repeat(Math.round(item.rating))}${'&#9734;'.repeat(5 - Math.round(item.rating))} ${item.rating}</span>`);
+        }
+
+        if (type === 'recommendation' && item.score !== undefined) {
+            metaParts.push(`<span class="score">Score ${item.score.toFixed(4)}</span>`);
+        }
+
+        if (item.price) {
+            metaParts.push(`<span class="price">${item.price}</span>`);
+        }
+
+        card.innerHTML = `
+            <div class="product-media">
+                ${badgeHtml}
+                ${imgHtml}
+            </div>
+            <div class="product-body">
+                <h3 class="product-title">${escapeHtml(item.title)}</h3>
+                <div class="product-meta">${metaParts.join('')}</div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

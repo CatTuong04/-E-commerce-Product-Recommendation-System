@@ -1,0 +1,909 @@
+{% extends "base.html" %}
+{% block title %}Luxury Beauty - Home{% endblock %}
+
+{% macro product_card(p, rank=0, compact=false) %}
+<a href="/product/{{ p.asin }}" class="product-card {{ 'compact' if compact else '' }}">
+    <div class="product-media">
+        {% if rank >= 1 and rank <= 3 %}
+        <span class="product-rank">Top {{ rank }}</span>
+        {% endif %}
+        {% if p.image %}
+        <img src="{{ p.image }}" alt="{{ p.title }}" onerror="this.src='/static/placeholder.svg'; this.classList.add('placeholder')">
+        {% else %}
+        <img src="/static/placeholder.svg" class="placeholder" alt="Placeholder image">
+        {% endif %}
+    </div>
+    <div class="product-body">
+        <div class="product-meta">
+            {% if p.brand %}<span class="product-brand">{{ p.brand }}</span>{% endif %}
+            {% if p.avg_rating %}
+            <span class="product-score">{{ '%.1f'|format(p.avg_rating) }} / 5</span>
+            {% endif %}
+        </div>
+        <h3 class="product-title">{{ p.title or 'Untitled Product' }}</h3>
+        <div class="product-footer">
+            <div class="rating-line">
+                {% if p.avg_rating %}
+                <span class="stars">
+                    {% for i in range(p.avg_rating|int) %}&#9733;{% endfor %}{% for i in range(5 - p.avg_rating|int) %}&#9734;{% endfor %}
+                </span>
+                <span class="rating-text">{{ p.review_count }} reviews</span>
+                {% else %}
+                <span class="rating-text">No rating yet</span>
+                {% endif %}
+            </div>
+            <div class="price {{ 'no-price' if not p.price else '' }}">{{ p.price or 'Contact for price' }}</div>
+        </div>
+    </div>
+</a>
+{% endmacro %}
+
+{% macro carousel_section(title, subtitle, items, id, show_rank=false) %}
+<section class="content-section" id="section-{{ id }}">
+    <div class="section-heading">
+        <div>
+            <h2>{{ title }}</h2>
+        </div>
+    </div>
+    <div class="carousel-shell">
+        <button class="carousel-btn carousel-prev" data-target="{{ id }}" aria-label="Scroll left">&lsaquo;</button>
+        <div class="carousel-track" id="{{ id }}">
+            {% for p in items %}
+            {{ product_card(p, rank=loop.index if show_rank else 0) }}
+            {% endfor %}
+        </div>
+        <button class="carousel-btn carousel-next" data-target="{{ id }}" aria-label="Scroll right">&rsaquo;</button>
+    </div>
+</section>
+{% endmacro %}
+
+{% block content %}
+<style>
+:root {
+  --pink: #ffe5ec;
+  --pink-strong: #f8cfdc;
+  --pink-deep: #c97f97;
+  --pink-text: #8f5b6e;
+  --surface: #ffffff;
+  --surface-soft: #fff7fa;
+  --ink: #5f4350;
+  --muted: #9c7d89;
+  --line: rgba(201, 127, 151, 0.18);
+  --shadow-lg: 0 28px 70px rgba(201, 127, 151, 0.18);
+  --shadow-md: 0 16px 34px rgba(201, 127, 151, 0.12);
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(255, 229, 236, 0.95), transparent 34%),
+    radial-gradient(circle at top right, rgba(248, 207, 220, 0.55), transparent 24%),
+    linear-gradient(180deg, #ffffff 0%, #fff8fb 52%, #ffffff 100%) !important;
+  color: var(--ink);
+}
+
+header,
+footer {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: var(--pink-text) !important;
+  border-color: var(--pink-strong) !important;
+}
+
+.logo h1 {
+  color: var(--pink-deep) !important;
+}
+
+.nav-link {
+  color: var(--pink-text) !important;
+}
+
+.nav-link:hover {
+  color: var(--pink-deep) !important;
+  background: rgba(255, 229, 236, 0.65) !important;
+}
+
+.nav-register {
+  background: var(--pink) !important;
+  color: var(--pink-text) !important;
+}
+
+.nav-register:hover {
+  background: var(--pink-strong) !important;
+  color: var(--pink-text) !important;
+}
+
+.nav-profile,
+.nav-admin {
+  color: var(--pink-deep) !important;
+}
+
+main.container.main-content {
+  max-width: 1240px;
+  width: 100%;
+  padding-top: 24px;
+  padding-bottom: 72px;
+}
+
+.home-page {
+  display: grid;
+  gap: 32px;
+}
+
+.hero-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 32px;
+  padding: 48px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.95), transparent 0 24%),
+    radial-gradient(circle at 86% 22%, rgba(248, 207, 220, 0.35), transparent 0 20%),
+    linear-gradient(135deg, #fffafb 0%, #ffeef4 45%, #ffe5ec 100%);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(201, 127, 151, 0.14);
+}
+
+.hero-panel::before,
+.hero-panel::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 127, 151, 0.2);
+}
+
+.hero-panel::before {
+  width: 280px;
+  height: 280px;
+  right: -90px;
+  top: -70px;
+}
+
+.hero-panel::after {
+  width: 220px;
+  height: 220px;
+  left: -80px;
+  bottom: -110px;
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 780px);
+  justify-content: center;
+  gap: 0;
+  align-items: center;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--pink-deep);
+}
+
+.hero-copy h1 {
+  margin: 0;
+  max-width: 13ch;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 6vw, 5.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+.hero-copy {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.hero-copy p {
+  max-width: 58ch;
+  margin: 20px 0 28px;
+  color: var(--pink-text);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+
+.primary-cta,
+.secondary-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.primary-cta {
+  background: var(--pink-deep);
+  color: #ffffff;
+}
+
+.secondary-cta {
+  border: 1px solid rgba(201, 127, 151, 0.2);
+  color: var(--pink-deep);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.primary-cta:hover,
+.secondary-cta:hover {
+  transform: translateY(-2px);
+}
+
+.hero-aside {
+  display: grid;
+  gap: 16px;
+  align-content: center;
+  justify-items: center;
+}
+
+.insight-card {
+  width: 100%;
+  padding: 26px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(201, 127, 151, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 229, 236, 0.8);
+  color: var(--pink-deep);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.insight-card h3 {
+  margin: 14px 0 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+}
+
+.insight-card p {
+  margin: 0;
+  color: var(--pink-text);
+  line-height: 1.7;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.stat-chip {
+  padding: 16px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(201, 127, 151, 0.12);
+}
+
+.stat-chip strong {
+  display: block;
+  font-size: 1.3rem;
+  color: var(--pink-deep);
+}
+
+.stat-chip span {
+  display: block;
+  margin-top: 4px;
+  color: var(--pink-text);
+  font-size: 0.85rem;
+}
+
+.search-panel {
+  margin-top: -14px;
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.search-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.search-panel-head h2 {
+  margin: 6px 0 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.search-panel-head p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 14px;
+  width: 100%;
+  max-width: 980px;
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 0 18px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+}
+
+.search-icon {
+  font-size: 1.05rem;
+  color: var(--pink-deep);
+}
+
+.search-input-wrap input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.search-input-wrap input::placeholder {
+  color: #958a7e;
+}
+
+.search-form button {
+  min-width: 160px;
+  min-height: 62px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--pink-deep);
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.search-form button:hover {
+  background: #b96f88;
+}
+
+.content-section,
+.search-results,
+.empty-state {
+  display: grid;
+  gap: 22px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: flex-start;
+  align-items: end;
+  gap: 0;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 3vw, 2.9rem);
+}
+
+.carousel-shell {
+  position: relative;
+  padding: 0 28px;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 230px);
+  gap: 26px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding: 4px 0 10px;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-track .product-card {
+  width: 230px;
+  min-width: 230px;
+  max-width: 230px;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 44%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--pink-deep);
+  font-size: 2rem;
+  line-height: 1;
+  box-shadow: 0 12px 28px rgba(201, 127, 151, 0.16);
+  cursor: pointer;
+  z-index: 2;
+  border: 1px solid rgba(201, 127, 151, 0.16);
+}
+
+.carousel-prev {
+  left: 0;
+}
+
+.carousel-next {
+  right: 0;
+}
+
+.product-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 2px solid rgba(201, 127, 151, 0.46);
+  box-shadow: 0 0 0 4px rgba(201, 127, 151, 0.13), 0 12px 26px rgba(201, 127, 151, 0.09);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 127, 151, 0.62);
+  box-shadow: 0 0 0 5px rgba(201, 127, 151, 0.16), 0 22px 44px rgba(32, 24, 16, 0.12);
+}
+
+.product-media {
+  position: relative;
+  aspect-ratio: 1 / 0.82;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 229, 236, 0.55)),
+    var(--surface-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+  display: block;
+}
+
+.product-media img.placeholder {
+  width: 62%;
+  height: 62%;
+  padding: 0;
+  opacity: 0.42;
+}
+
+.product-rank {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--pink-deep);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(201, 127, 151, 0.14);
+}
+
+.product-body {
+  display: grid;
+  gap: 9px;
+  padding: 14px 15px 16px;
+}
+
+.product-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+}
+
+.product-brand,
+.product-score {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.product-brand {
+  color: var(--pink-deep);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.product-score {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #fff7fa;
+  border: 1px solid rgba(201, 127, 151, 0.14);
+  color: #6f5962;
+  white-space: nowrap;
+}
+
+.product-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.4;
+  min-height: 2.8em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-footer {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.rating-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.stars {
+  color: #d77f9e;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.price {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--pink-deep);
+}
+
+.price.no-price {
+  color: #8e8274;
+}
+
+.search-results {
+  padding: 30px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(201, 127, 151, 0.12);
+  box-shadow: var(--shadow-md);
+}
+
+.result-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.result-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.result-title h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 3vw, 2.7rem);
+}
+
+.result-badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--pink);
+  color: var(--pink-deep);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.sort-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sort-link,
+.page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.sort-link.active,
+.page-link.active {
+  background: var(--pink-deep);
+  border-color: var(--pink-deep);
+  color: #ffffff;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 26px;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.empty-state {
+  padding: 42px 28px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(201, 127, 151, 0.12);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.empty-state h2 {
+  margin: 0 0 12px;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 1080px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .carousel-prev,
+  .carousel-next {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  main.container.main-content {
+    padding-top: 18px;
+    padding-bottom: 56px;
+  }
+
+  .hero-panel,
+  .search-panel,
+  .search-results,
+  .insight-tile,
+  .empty-state {
+    border-radius: 24px;
+  }
+
+  .hero-panel {
+    padding: 28px 22px;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .search-form {
+    grid-template-columns: 1fr;
+  }
+
+  .search-form button {
+    width: 100%;
+  }
+
+  .section-heading,
+  .result-head {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .carousel-shell {
+    padding: 0;
+  }
+
+  .carousel-track {
+    grid-auto-columns: minmax(210px, 72vw);
+  }
+
+  .carousel-track .product-card {
+    width: 72vw;
+    min-width: 210px;
+    max-width: 72vw;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<div class="home-page">
+  {% if not query %}
+  <section class="hero-panel">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Luxury Beauty Selection</p>
+        <h1>A softer, cleaner way to explore beauty.</h1>
+        <p>
+          The new home page focuses on what matters most: faster search, clearer browsing, and curated product picks
+          based on ratings, popularity, and personalized suggestions.
+        </p>
+        <div class="hero-actions">
+          <a href="#section-carousel-top" class="primary-cta">View Top Rated</a>
+          <a href="#search-panel" class="secondary-cta">Search Products</a>
+        </div>
+      </div>
+
+      
+    </div>
+  </section>
+
+  <section class="search-panel" id="search-panel">
+    <div class="search-panel-head">
+      <div>
+        <p class="eyebrow">Smart Discovery</p>
+        <h2>Start with what you need</h2>
+      </div>
+    </div>
+    <form action="/" method="get" class="search-form">
+      <label class="search-input-wrap" for="home-search">
+        <span class="search-icon">&#8981;</span>
+        <input id="home-search" type="text" name="q" value="{{ query }}" placeholder="Example: Revision, OPI, hand cream...">
+      </label>
+      <button type="submit">Search</button>
+    </form>
+  </section>
+  {% else %}
+  <section class="search-panel" id="search-panel">
+    <div class="search-panel-head">
+      <div>
+        <p class="eyebrow">Search Mode</p>
+        <h2>Refine your search</h2>
+      </div>
+      <p>Change your keyword and sort results below without leaving the search page.</p>
+    </div>
+    <form action="/" method="get" class="search-form">
+      <label class="search-input-wrap" for="home-search">
+        <span class="search-icon">&#8981;</span>
+        <input id="home-search" type="text" name="q" value="{{ query }}" placeholder="Search products or brands">
+      </label>
+      <button type="submit">Search</button>
+    </form>
+  </section>
+  {% endif %}
+
+  {% if query and search_results %}
+  <section class="search-results">
+    <div class="result-head">
+      <div class="result-title">
+        <h2>Search Results</h2>
+        <span class="result-badge">{{ search_total }} products for "{{ query }}"</span>
+      </div>
+      <div class="sort-options">
+        <a href="/?q={{ query }}&sort=relevance" class="sort-link {{ 'active' if sort == 'relevance' }}">Relevance</a>
+        <a href="/?q={{ query }}&sort=price_low" class="sort-link {{ 'active' if sort == 'price_low' }}">Price Low-High</a>
+        <a href="/?q={{ query }}&sort=price_high" class="sort-link {{ 'active' if sort == 'price_high' }}">Price High-Low</a>
+        <a href="/?q={{ query }}&sort=rating" class="sort-link {{ 'active' if sort == 'rating' }}">Rating</a>
+      </div>
+    </div>
+
+    <div class="product-grid">
+      {% for p in search_results %}
+      {{ product_card(p, compact=true) }}
+      {% endfor %}
+    </div>
+
+    {% if search_pages > 1 %}
+    <nav class="pagination">
+      {% if page > 1 %}
+      <a href="/?q={{ query }}&sort={{ sort }}&page={{ page - 1 }}" class="page-link">&laquo; Prev</a>
+      {% endif %}
+      {% for p in range(1, search_pages + 1) %}
+      <a href="/?q={{ query }}&sort={{ sort }}&page={{ p }}" class="page-link {{ 'active' if p == page }}">{{ p }}</a>
+      {% endfor %}
+      {% if page < search_pages %}
+      <a href="/?q={{ query }}&sort={{ sort }}&page={{ page + 1 }}" class="page-link">Next &raquo;</a>
+      {% endif %}
+    </nav>
+    {% endif %}
+  </section>
+  {% elif query %}
+  <section class="empty-state">
+    <h2>No matching products found</h2>
+    <p>Try another brand name, category, or a shorter keyword to get more accurate results.</p>
+  </section>
+  {% endif %}
+
+  {% if not query %}
+    {% if rec_items %}
+      {{ carousel_section("Recommended For You", "", rec_items, "carousel-rec", show_rank=true) }}
+    {% endif %}
+
+    {{ carousel_section("Top Rated", "", top_rated, "carousel-top", show_rank=true) }}
+
+    {{ carousel_section("Best Sellers", "", best_sellers, "carousel-best", show_rank=true) }}
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.carousel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const track = document.getElementById(btn.dataset.target);
+        const card = track && track.querySelector('.product-card');
+        if (!track || !card) return;
+        const scrollAmount = card.offsetWidth + 20;
+        track.scrollBy({
+            left: btn.classList.contains('carousel-next') ? scrollAmount * 2 : -scrollAmount * 2,
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
+{% endblock %}
